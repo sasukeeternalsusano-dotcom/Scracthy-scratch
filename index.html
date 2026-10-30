@@ -1,0 +1,88 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Scratch Cards for Danoya</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Caveat:wght@600&family=Figtree:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#fff1ea;--bg2:#ffd3df;--card:#fffaf6;--ink:#4a1030;--soft:#8a5a70;--line:#f0c4d1;--rose:#e5457f;--gold:#d98f00;--cardbg:#fff;--on:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d0a18;--bg2:#4a1236;--card:#2b0f24;--ink:#ffeef3;--soft:#d6a4b8;--line:#6a2a52;--rose:#ff7aa8;--gold:#ffc83d;--cardbg:#3a1530;--on:#1d0a18}}
+:root[data-theme="dark"]{--bg:#1d0a18;--bg2:#4a1236;--card:#2b0f24;--ink:#ffeef3;--soft:#d6a4b8;--line:#6a2a52;--rose:#ff7aa8;--gold:#ffc83d;--cardbg:#3a1530;--on:#1d0a18}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 50% -10%,var(--bg2),var(--bg) 62%) fixed,var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;line-height:1.5;min-height:100vh;padding-block:30px 70px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1{font-family:Gloock,Georgia,serif;font-weight:400;font-size:clamp(2.2rem,9vw,3.2rem);line-height:1.08;margin:0;text-wrap:balance}
+.hand{font-family:Caveat,cursive;font-size:1.7rem;color:var(--rose);margin:0}
+.muted{color:var(--soft);margin:0}
+.prog{display:flex;align-items:center;gap:12px;font-weight:700}
+.bar{flex:1;height:10px;background:var(--line);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .5s;border-radius:9px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.c{position:relative;border-radius:20px;overflow:hidden;background:var(--cardbg);border:2px solid var(--line);min-height:170px;display:flex;align-items:center;justify-content:center;padding:18px;text-align:center;opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}
+.c.in{opacity:1;transform:none}
+.c .tag{position:absolute;top:10px;left:14px;font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--rose)}
+.c p{margin:10px 0 0;font-family:Gloock,Georgia,serif;font-size:1.15rem;line-height:1.35;text-wrap:balance}
+.c canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;transition:opacity .6s}
+.c.done canvas{opacity:0;pointer-events:none}
+.c .rv{position:absolute;right:8px;bottom:8px;font:inherit;font-size:.75rem;font-weight:700;background:var(--card);color:var(--soft);border:1.5px solid var(--line);border-radius:99px;padding:4px 10px;cursor:pointer;z-index:2}
+.c.done .rv{display:none}
+.rv:focus-visible,.go:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.final{display:none;background:var(--card);border:3px dashed var(--rose);border-radius:22px;padding:22px;text-align:center}
+.final.on{display:block;animation:pop .7s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{opacity:0;scale:.6}}
+.final h2{font-family:Gloock,serif;font-weight:400;margin:0 0 8px;font-size:1.6rem}
+.go{font:inherit;font-weight:700;background:var(--rose);color:var(--on);border:0;border-radius:99px;padding:12px 22px;cursor:pointer}
+.sp{position:fixed;pointer-events:none;z-index:50;line-height:1}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<main class="wrap">
+<header><p class="hand">for Danoya, from Doodi</p><h1>Scratch me, baby girl</h1><p class="muted">Twenty-six little cards, each hiding something true. Scratch with your finger, or tap “Reveal” if you’re impatient.</p></header>
+<div class="prog"><span id="pt">0 / 26</span><div class="bar" role="progressbar" aria-label="Cards revealed"><i id="pb"></i></div></div>
+<div class="grid" id="grid"></div>
+<section class="final" id="fin" aria-live="polite"><h2>All 26 revealed 💌</h2><p style="margin:0">Come to me whenever, my beautiful loving queen. 👑</p><p class="hand" style="margin-top:8px">I love you, Danoya.</p><button class="go" id="reset" type="button" style="margin-top:14px">Cover them again</button></section>
+</main>
+<script>
+(function(){
+var rm=false;try{rm=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
+function st(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+var C=[["Memory", "Our Discord dates are my favourite part of every single day."], ["Memory", "Every “good morning” from you resets my whole day."], ["Memory", "You started the Korra Discord dates. Best move anyone ever made."], ["Compliment", "Your laugh is a killer, and I mean that in the best way."], ["Promise", "You are so sexy, Danoya. Your eyes, nose, lips, jawline, hair, ears, neck, boobies, tummy, arms, booty, thighs, legs, feet and hands. All of it. I’m obsessed."], ["Truth", "You’re my sun. Every single morning."], ["Compliment", "I love every version of you: the sleepy one, the grumpy one and the shining one."], ["Promise", "I’ll always check your messages first. Shower, then you."], ["Coupon", "Redeem for one date with the theme of your choice. No limits except long distance."], ["Truth", "You’re my favourite person across all of time and space."], ["Silly", "Sasuke is cool. You’re cooler. Don’t tell Sasuke."], ["Promise", "Whatever you dream, I’ll cheer louder than anyone. You’re already enough."], ["Compliment", "You make ordinary days feel lighter just by being in them."], ["Truth", "You’re kind in a way that never needs an audience."], ["Promise", "I’ll show up for every hard morning, even from thousands of kilometres away."], ["Memory", "The day you said yes, I became the luckiest guy alive."], ["Silly", "Greninja is the coldest. You’re the warmest."], ["Compliment", "Robin is smart and elegant. You’re smarter and more elegant."], ["Truth", "I think about you at the weirdest times, then smile like an idiot."], ["Promise", "We’ll go to Machu Picchu one day and watch the sunrise together."], ["Compliment", "Your smile changes the whole room, even through a screen."], ["Silly", "Stardew date? I’ll farm, you boss me around."], ["Truth", "You’re the calm in my chaos, even from another country."], ["Promise", "Reese’s, water, Discord and a movie. Any day, any time."], ["Compliment", "You’re beautiful inside and out, and I’m lucky I get to say so."], ["Promise", "Forever is a long time, and I want every second of it with you, my queen. 👑"]];
+var done={};try{done=JSON.parse(st("sc2-done")||"{}")}catch(e){}
+var grid=document.getElementById("grid"),els=[];
+function count(){var n=0;for(var k in done)if(done[k])n++;return n}
+function upd(){var n=count();document.getElementById("pt").textContent=n+" / "+C.length;document.getElementById("pb").style.width=(n/C.length*100)+"%";document.getElementById("fin").classList.toggle("on",n===C.length)}
+function burst(el){if(rm||!document.body.animate)return;var r=el.getBoundingClientRect(),sy=["♥","✦","★","✿"];for(var k=0;k<14;k++){var p=document.createElement("div");p.className="sp";p.textContent=sy[k%4];p.style.left=(r.left+r.width/2)+"px";p.style.top=(r.top+r.height/2)+"px";p.style.fontSize=(12+Math.random()*14)+"px";p.style.color=k%2?"var(--gold)":"var(--rose)";document.body.appendChild(p);var a=Math.random()*6.28,d=40+Math.random()*90;var an=p.animate([{transform:"translate(-50%,-50%)",opacity:1},{transform:"translate(calc(-50% + "+Math.cos(a)*d+"px),calc(-50% + "+(Math.sin(a)*d-30)+"px)) rotate("+(Math.random()*200-100)+"deg)",opacity:0}],{duration:1000+Math.random()*500,easing:"cubic-bezier(.2,.8,.3,1)"});an.onfinish=(function(q){return function(){q.remove()}})(p)}}
+function foil(cv){
+  var w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(devicePixelRatio||1,2);cv.width=w*dpr;cv.height=h*dpr;
+  var x=cv.getContext("2d");x.scale(dpr,dpr);x.globalCompositeOperation="source-over";
+  var g=x.createLinearGradient(0,0,w,h);g.addColorStop(0,"#c9c3d6");g.addColorStop(.3,"#f4eff8");g.addColorStop(.55,"#b9b0cc");g.addColorStop(.8,"#efe9f6");g.addColorStop(1,"#bfb6d2");
+  x.fillStyle=g;x.fillRect(0,0,w,h);
+  x.fillStyle="rgba(229,69,127,.35)";x.font="18px serif";x.textAlign="center";
+  for(var i=0;i<w;i+=38)for(var j=0;j<h;j+=38){x.fillText("♥",i+((j/38)%2?19:0),j+14)}
+  x.fillStyle="#6a2a52";x.font="700 18px Figtree,sans-serif";x.fillText("scratch here ✦",w/2,h/2+6);
+}
+function pct(cv){var x=cv.getContext("2d"),w=cv.width,h=cv.height,d=x.getImageData(0,0,w,h).data,t=0,n=0;for(var i=3;i<d.length;i+=64){n++;if(d[i]<40)t++}return t/n}
+function finish(i,el,fire){if(done[i])return;done[i]=1;st("sc2-done",JSON.stringify(done));el.classList.add("done");upd();if(fire)burst(el)}
+C.forEach(function(c,i){
+  var el=document.createElement("div");el.className="c";
+  el.innerHTML='<span class="tag"></span><p></p><canvas></canvas><button class="rv" type="button">Reveal</button>';
+  el.querySelector(".tag").textContent=c[0];el.querySelector("p").textContent=c[1];grid.appendChild(el);els.push(el);
+  var cv=el.querySelector("canvas");
+  if(done[i]){el.classList.add("done")}
+  else{
+    var drawing=false,x;
+    function init(){foil(cv);x=cv.getContext("2d");x.globalCompositeOperation="destination-out"}
+    requestAnimationFrame(init);
+    function pos(e){var r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]}
+    function dot(e){var p=pos(e);x.beginPath();x.arc(p[0],p[1],20,0,6.3);x.fill()}
+    cv.addEventListener("pointerdown",function(e){drawing=true;cv.setPointerCapture(e.pointerId);dot(e)});
+    cv.addEventListener("pointermove",function(e){if(drawing)dot(e)});
+    function up(){if(!drawing)return;drawing=false;if(pct(cv)>.5)finish(i,el,true)}
+    cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
+    el.querySelector(".rv").addEventListener("click",function(){finish(i,el,true)});
+  }
+});
+if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.1});els.forEach(function(e){io.observe(e)})}else{els.forEach(function(e){e.classList.add("in")})}
+document.getElementById("reset").addEventListener("click",function(){st("sc2-done","{}");location.reload()});
+upd();
+})();
+</script>
+
+</body></html>
